@@ -186,7 +186,7 @@ class Backend:
             elif isinstance(obj, mesonlib.File):
                 obj_list.append(obj.rel_to_builddir(self.build_to_src))
             elif isinstance(obj, build.ExtractedObjects):
-                obj_list += self.determine_ext_objs(obj, proj_dir_to_build_root)
+                obj_list += self.determine_ext_objs(target, obj, proj_dir_to_build_root)
             else:
                 raise MesonException('Unknown data type in object list.')
         return obj_list
@@ -269,13 +269,13 @@ class Backend:
             source = os.path.join(self.get_target_private_dir(target), source[:-5] + '.c')
         return source.replace('/', '_').replace('\\', '_') + '.' + self.environment.get_object_suffix()
 
-    def determine_ext_objs(self, extobj, proj_dir_to_build_root):
+    def determine_ext_objs(self, target, extobj, proj_dir_to_build_root):
         result = []
         targetdir = self.get_target_private_dir(extobj.target)
         # With unity builds, there's just one object that contains all the
         # sources, and we only support extracting all the objects in this mode,
         # so just return that.
-        if self.environment.coredata.get_builtin_option('unity'):
+        if self.is_unity(target):
             comp = get_compiler_for_source(extobj.target.compilers.values(),
                                            extobj.srclist[0])
             # The unity object name uses the full absolute path of the source file

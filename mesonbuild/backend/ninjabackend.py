@@ -282,6 +282,12 @@ int dummy;
                 return False
         return True
 
+    def is_unity(self, target):
+        optval = self.environment.coredata.get_builtin_option('unity')
+        if optval == 'on' or (optval == 'subprojects' and target.subproject != ''):
+            return True
+        return False
+
     def generate_target(self, target, outfile):
         if isinstance(target, build.CustomTarget):
             self.generate_custom_target(target, outfile)
@@ -335,7 +341,7 @@ int dummy;
         outname = self.get_target_filename(target)
         obj_list = []
         use_pch = self.environment.coredata.base_options.get('b_pch', False)
-        is_unity = self.environment.coredata.get_builtin_option('unity')
+        is_unity = self.is_unity(target)
         if use_pch and target.has_pch():
             pch_objects = self.generate_pch(target, outfile)
         else:
